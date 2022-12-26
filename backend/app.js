@@ -1,3 +1,4 @@
+const cookieParser = require("cookie-parser");
 const express = require("express");
 const app = express();
 if (process.env.NODE_ENV !== "production") {
@@ -6,12 +7,12 @@ if (process.env.NODE_ENV !== "production") {
 //Using middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 //Importing routes
-// const post = require("./routes/post.js");
+const post = require("./routes/post.js");
 const user = require("./routes/user.js");
 
 //Using Routes
-// app.use("/api/v1", post);
+app.use("/api/v1", post);
 app.use("/api/v1", user);
 module.exports = app;
