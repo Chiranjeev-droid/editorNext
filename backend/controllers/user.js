@@ -132,3 +132,62 @@ exports.followUser = async (req, res) => {
     });
   }
 };
+
+//UPDATE PASSWORD
+exports.updatePassword = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select("+password");
+
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide old and new Password",
+      });
+    }
+    const isMatch = await user.matchPassword(oldPassword);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect Old Password",
+      });
+    }
+    // we are not rehashing our old password because hmne ek middleware bnarkha hai user model wale folder me , jo ki jb bhi password change hota hai, toh vo save krne se phle password ko rehash krdeta hai.
+
+    user.password = newPassword;
+    await user.save();
+    return res.status(400).json({
+      success: true,
+      message: "Password updated Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+exports.updateProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const { name, email } = req.body;
+    if (name) {
+      user.name = name;
+    }
+    if (email) {
+      user.email = email;
+    }
+    //User Avatar to do
+    await user.save();
+    res.status(200).json({
+      success: true,
+      message: "Profile Updated ",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
